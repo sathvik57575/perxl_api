@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PerXL overdue risk</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <h1>Task overdue risk</h1>
+  <p class="lead">Estimate how likely a new task is to be completed more than one day after its due date.
+     This is a test page for the scoring API.</p>
+
+  <div class="tabs" role="tablist" aria-label="Prediction mode">
+    <button id="single-tab" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="single-panel">Single task prediction</button>
+    <button id="batch-tab" class="tab" type="button" role="tab" aria-selected="false" aria-controls="batch-panel">Batch task prediction</button>
+  </div>
+
+  <section id="single-panel" role="tabpanel" aria-labelledby="single-tab">
+  <form id="score-form" novalidate>
+    <label>Due date
+      <input type="datetime-local" id="dueDate" required>
+    </label>
+    <label>Created on <span class="hint">(optional, defaults to now)</span>
+      <input type="datetime-local" id="createdOn">
+    </label>
+    <label>Assignee
+      <select id="assignee">
+        <option value="unknown">Unknown (organisation average)</option>
+        <% assignees.forEach(function (a) { %>
+          <option value="<%= a.ref %>"><%= a.label %></option>
+        <% }) %>
+        <option value="manual">Enter history manually</option>
+      </select>
+    </label>
+    <div id="manual" class="row" hidden>
+      <label>Past tasks with a known outcome <input type="number" id="histN" min="0" step="1" value="40"></label>
+      <label>Of which late <input type="number" id="histLate" min="0" step="1" value="28"></label>
+    </div>
+    <div class="actions">
+      <button type="submit">Score task</button>
+      <span class="presets">Try:
+        <button type="button" class="link" data-preset="risky">short deadline, often-late assignee</button>
+        <button type="button" class="link" data-preset="safe">long deadline, reliable assignee</button>
+        <button type="button" class="link" data-preset="unknown">unknown assignee</button>
+      </span>
+    </div>
+  </form>
+
+  <div id="error" class="error" role="alert" hidden></div>
+
+  <section id="result" hidden aria-live="polite">
+    <div class="summary">
+      <div class="prob"><span id="prob"></span><small>chance of being late</small></div>
+      <div id="level" class="badge"></div>
+    </div>
+    <div class="bar"><div id="bar-fill"></div></div>
+    <h2>Why</h2>
+    <ul id="factors"></ul>
+    <div id="warnings" class="warnings" hidden></div>
+    <h2>Inputs used</h2>
+    <dl id="inputs"></dl>
+  </section>
+  </section>
+
+  <section id="batch-panel" role="tabpanel" aria-labelledby="batch-tab" hidden>
+    <p class="batch-help">Upload a CSV file or paste JSON with up to 100 tasks. CSV columns: Task ID, Assignee ID, Created On, Due Date. Dates should be ISO 8601.</p>
+    <div class="batch-inputs">
+      <label for="csv-file">Upload CSV
+        <input type="file" id="csv-file" accept=".csv,text/csv">
+      </label>
+      <label for="batch-json">Or paste JSON <span class="hint">An array of task objects or an object with a "tasks" array</span>
+        <textarea id="batch-json" rows="8" spellcheck="false" placeholder='[{"taskId":"TASK-001","assigneeId":"worker-1","createdOn":"2026-10-29T10:00:00Z","dueDate":"2026-11-20T18:29:59Z"}]'></textarea>
+      </label>
+    </div>
+    <br>
+    <div class="actions">
+      <button type="button" id="run-batch">Run batch prediction</button>
+      <span id="batch-status" class="hint" aria-live="polite"></span>
+    </div>
+    <div id="batch-error" class="error" role="alert" hidden></div>
+    <section id="batch-results" hidden aria-live="polite">
+      <div class="batch-summary">
+        <span>Total tasks submitted: <strong id="batch-total">0</strong></span>
+        <span>Successful predictions: <strong id="batch-success">0</strong></span>
+        <span>Failed predictions: <strong id="batch-failed">0</strong></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Task ID</th><th>Assignee</th><th>Overdue probability</th><th>Risk</th></tr></thead>
+          <tbody id="batch-rows"></tbody>
+        </table>
+      </div>
+      <button type="button" id="download-results" class="secondary">Download results as CSV</button>
+    </section>
+  </section>
+
+  <details class="about">
+    <summary>About this model and its limits</summary>
+    <p><%= model.name %>. Target: <%= model.target %>. History snapshot: <%= snapshot %>.</p>
+    <ul>
+      <% model.limitations.forEach(function (l) { %><li><%= l %></li><% }) %>
+    </ul>
+  </details>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

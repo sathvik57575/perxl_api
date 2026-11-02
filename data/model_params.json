@@ -1,0 +1,39 @@
+{
+  "model_name": "overdue-risk lead-time + assignee-history logistic regression",
+  "trained_export_time": "2026-10-31T12:13:26+00:00",
+  "grace_days": 1,
+  "target": "task closes more than 1 day(s) after its due date",
+  "feature_names": [
+    "lead_days_log",
+    "asg_late_rate"
+  ],
+  "imputer_median": [
+    1.9868634365435711,
+    0.5762659210935073
+  ],
+  "scaler_mean": [
+    1.985318090405298,
+    0.5933521323978362
+  ],
+  "scaler_scale": [
+    0.7409913895126432,
+    0.16620149402674717
+  ],
+  "coefficients": [
+    -0.33716703083780575,
+    0.4459010664503172
+  ],
+  "intercept": 0.36548425239657706,
+  "shrink_k": 8.0,
+  "global_late_rate": 0.7067415730337079,
+  "flag_threshold": 0.647,
+  "higher_risk_cut": 0.5992661005819838,
+  "training_lead_days_min": 1,
+  "sklearn_version": "1.6.1",
+  "limitations": [
+    "Ranking tool, not a guarantee: a higher probability means the task resembles tasks that were late before.",
+    "Probabilities are not calibrated to current behaviour; the late rate has risen over time, so treat them as relative risk.",
+    "Only two levels are reported (lower, higher); the data did not support three distinct risk levels.",
+    "Based on lead time and the assignee's history only; other task details added little in testing."
+  ]
+}
